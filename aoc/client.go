@@ -69,7 +69,6 @@ func (c *Client) Submit(answer *Answer) (error, string) {
 	form.Set("level", strconv.Itoa(int(answer.Part)))
 	form.Set("answer", answer.Answer)
 
-
 	req, err := c.newRequest("POST", path, strings.NewReader(form.Encode()))
 	if err != nil {
 		return err, ""
@@ -132,6 +131,9 @@ func (c *Client) do(req *http.Request) (io.Reader, error) {
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return nil, err
+	}
+	if body[len(body)-1] == 0xA {
+		body = body[:len(body)-1]
 	}
 	buf := bytes.NewBuffer(body)
 
