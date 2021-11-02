@@ -66,16 +66,21 @@ func main() {
 				return err
 			}
 
-			output := strings.ReplaceAll(lFlagOutput, "{{year}}", fmt.Sprintf("%04d", year))
-			output = strings.ReplaceAll(output, "{{day}}", fmt.Sprintf("%02d", day))
 
-			f, err := os.Create(output)
-			if err != nil {
-				return err
+			var outputWriter io.Writer
+			if lFlagOutput != "" {
+				output := strings.ReplaceAll(lFlagOutput, "{{year}}", fmt.Sprintf("%04d", year))
+				output = strings.ReplaceAll(output, "{{day}}", fmt.Sprintf("%02d", day))
+				f, err := os.Create(output)
+				if err != nil {
+					return err
+				}
+				defer f.Close()
+			} else {
+				outputWriter = os.Stdout
 			}
-			defer f.Close()
 
-			if _, err = io.Copy(f, result); err != nil {
+			if _, err = io.Copy(outputWriter, result); err != nil {
 				return err
 			}
 
@@ -85,7 +90,7 @@ func main() {
 
 	cmd.Flags().IntVarP(&lFlagYear, "year", "y", 0, "year to download from, if not defined will fallback to year set in config if present then the current year")
 	cmd.Flags().IntVarP(&lFlagDay, "day", "d", 0, "day to download from, if not defined will fallback to day set in config if present then current year")
-	cmd.Flags().StringVarP(&lFlagOutput, "output", "o", "input_{{year}}_{{day}}.txt", "defines output path for downloaded puzzle input, accepts {{year}} and {{day}} as place holders for year and day")
+	cmd.Flags().StringVarP(&lFlagOutput, "output", "o", "", "defines output path for downloaded puzzle input, accepts {{year}} and {{day}} as place holders for year and day, if not output is provided result goes to stdout")
 	cmd.Flags().StringVar(&lFlagSessionCookie, "sessionCookie", "", "sets the session cookie, if not defined session cookie is read from .aocConfig")
 
 	if err := cmd.Execute(); err != nil {
