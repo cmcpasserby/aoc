@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	version   = "1.0.0"
+	version   = "1.0.1"
 	longUsage = `aoc is a command line tool for downloading Advent of Code puzzle inputs
 any flag not provided will fallback to using values from .aocConfig file or fallback to using current date for --year and --day`
 )
@@ -68,6 +68,7 @@ func main() {
 
 
 			var outputWriter io.Writer
+
 			if lFlagOutput != "" {
 				output := strings.ReplaceAll(lFlagOutput, "{{year}}", fmt.Sprintf("%04d", year))
 				output = strings.ReplaceAll(output, "{{day}}", fmt.Sprintf("%02d", day))
@@ -76,6 +77,7 @@ func main() {
 					return err
 				}
 				defer f.Close()
+				outputWriter = f
 			} else {
 				outputWriter = os.Stdout
 			}
