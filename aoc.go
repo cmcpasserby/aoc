@@ -23,8 +23,8 @@ func New(sessionCookie string, httpClient *http.Client) *Client {
 	}
 }
 
-func (c *Client) DownloadInput(year, day int) (io.Reader, error) {
-	rel := &url.URL{Path: fmt.Sprintf("%d/day/%d/input", year, day)}
+func (c *Client) newRequest(path string) (*http.Request, error) {
+	rel := &url.URL{Path: path}
 	u := c.baseUrl.ResolveReference(rel)
 
 	req, err := http.NewRequest("GET", u.String(), nil)
@@ -38,6 +38,10 @@ func (c *Client) DownloadInput(year, day int) (io.Reader, error) {
 	}
 	req.AddCookie(cookie)
 
+	return req, nil
+}
+
+func (c *Client) do(req *http.Request) (io.Reader, error) {
 	resp, err := c.httpClient.Do(req)
 	if err != nil {
 		return nil, err
@@ -54,4 +58,20 @@ func (c *Client) DownloadInput(year, day int) (io.Reader, error) {
 	}
 
 	return bytes.NewReader(b), nil
+}
+
+func (c *Client) GetInput(year, day int) (io.Reader, error) {
+	req, err := c.newRequest(fmt.Sprintf("%d/day/%d/input", year, day))
+	if err != nil {
+		return nil, err
+	}
+	return c.do(req)
+}
+
+func (c *Client) GetQuestion(year, day int) (io.Reader, error) {
+	req, err := c.newRequest(fmt.Sprintf("%d/day/%d", year, day))
+	if err != nil {
+		return nil, err
+	}
+	return c.do(req)
 }

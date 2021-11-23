@@ -6,6 +6,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"time"
 )
 
 const (
@@ -53,3 +54,34 @@ func loadConfig(f io.Reader) (*aocConfig, error) {
 	}
 	return &config, nil
 }
+
+func getCombinedConfig() (*aocConfig, error) {
+	config, err := getConfig()
+	if err != nil {
+		return nil, err
+	}
+
+	if gFlagSessionCookie != "" {
+		config.SessionCookie = gFlagSessionCookie
+	}
+
+	now := time.Now()
+	year := now.Year()
+	if gFlagYear != 0 {
+		year = gFlagYear
+	} else if config.Year != 0 {
+		year = config.Year
+	}
+	config.Year = year
+
+	day := now.Day()
+	if gFlagDay != 0 {
+		day = gFlagDay
+	} else if config.Day != 0 {
+		day = config.Day
+	}
+	config.Day = day
+
+	return config, nil
+}
+
