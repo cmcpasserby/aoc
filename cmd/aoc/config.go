@@ -65,7 +65,12 @@ func getCombinedConfig() (*aocConfig, error) {
 		config.SessionCookie = gFlagSessionCookie
 	}
 
-	now := time.Now()
+	loc, err := time.LoadLocation("America/New_York")
+	if err != nil {
+		return nil, err
+	}
+
+	now := time.Now().In(loc)
 	year := now.Year()
 	if gFlagYear != 0 {
 		year = gFlagYear
@@ -84,4 +89,3 @@ func getCombinedConfig() (*aocConfig, error) {
 
 	return config, nil
 }
-
