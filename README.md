@@ -2,8 +2,8 @@
 aoc is a command line tool for downloading [Advent of Code](https://adventofcode.com) puzzle inputs.
 
 ## Usage
-- `aoc --help` will print usage instructions and list all available flags
-- `aoc --year 2015 --day 1` would be a common use case and will download the puzzle input for day 1 of 2015 and use the session cookie provided by your `.aocConfig`
+- `aoc -h` will print usage instructions and list all available flags
+- `aoc -year 2015 -day 1 inputs` would be a common use case and will download the puzzle input for day 1 of 2015 and use the session cookie provided by your `.aocConfig`
 
 
 ## Config file
