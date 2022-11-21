@@ -1,9 +1,11 @@
 package main
 
 import (
+	"context"
+	"flag"
 	"fmt"
 	"github.com/cmcpasserby/aoc"
-	"github.com/spf13/cobra"
+	"github.com/cmcpasserby/scli"
 	"io"
 	"net/http"
 	"os"
@@ -11,9 +13,8 @@ import (
 )
 
 const (
-	version   = "1.0.1"
 	longUsage = `aoc is a command line tool for downloading Advent of Code puzzle inputs
-any flag not provided will fallback to using values from .aocConfig file or fallback to using current date for --year and --day`
+any flag not provided will fallback to using values from .aocConfig file or fallback to using current date for -year and -day`
 )
 
 var (
@@ -24,25 +25,22 @@ var (
 )
 
 func main() {
-	cmd := &cobra.Command{
-		Use:           "aoc",
-		Version:       version,
-		Short:         "Tool for downloading Advent of Code puzzle input data",
-		Long:          longUsage,
+	rootFlags := flag.NewFlagSet("aoc", flag.ExitOnError)
+	rootFlags.IntVar(&gFlagYear, "year", 0, "year to download from, not not defined will fallback to a year set in the config if present then current year")
+	rootFlags.IntVar(&gFlagDay, "day", 0, "day to download from, not not defined will fallback to a day set in the config if present then current day")
+	rootFlags.StringVar(&gFlagOutput, "output", "", "defines output path for the downloaded puzzle input, accepts {year} and {day} as placeholders, if no output is provided results go to stdout")
+	rootFlags.StringVar(&gFlagSessionCookie, "sessionCookie", "", "sets the session cookie, if not defined session cookie is read from .aocConfig")
+
+	cmd := &scli.Command{
+		Usage:       "aoc",
+		ShortHelp:   "Tool for downloading Advent of Code Puzzle input data",
+		LongHelp:    longUsage,
+		Subcommands: []*scli.Command{createInputsCmd(), createQuestionCmd()},
+		FlagSet:     rootFlags,
 	}
 
-	cmd.AddCommand(
-		createInputsCmd(),
-		createQuestionCmd(),
-	)
-
-	cmd.PersistentFlags().IntVarP(&gFlagYear, "year", "y", 0, "year to download from, if not defined will fallback to year set in config if present then the current year")
-	cmd.PersistentFlags().IntVarP(&gFlagDay, "day", "d", 0, "day to download from, if not defined will fallback to day set in config if present then current year")
-	cmd.PersistentFlags().StringVarP(&gFlagOutput, "output", "o", "", "defines output path for downloaded puzzle input, accepts {{year}} and {{day}} as place holders for year and day, if not output is provided result goes to stdout")
-	cmd.PersistentFlags().StringVar(&gFlagSessionCookie, "sessionCookie", "", "sets the session cookie, if not defined session cookie is read from .aocConfig")
-
-	if err := cmd.Execute(); err != nil {
-		cmd.PrintErrln(err)
+	if err := cmd.ParseAndRun(context.Background(), os.Args[1:]); err != nil {
+		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
 }
@@ -70,12 +68,12 @@ func write(year, day int, reader io.Reader) error {
 	return nil
 }
 
-func createInputsCmd() *cobra.Command {
-	return &cobra.Command{
-		Use: "inputs",
-		Short: "Gets puzzle inputs for a day",
-		Args: cobra.NoArgs,
-		RunE: func(cmd *cobra.Command, args []string) error {
+func createInputsCmd() *scli.Command {
+	return &scli.Command{
+		Usage:         "inputs",
+		ShortHelp:     "Gets puzzle inputs for a day",
+		ArgsValidator: scli.NoArgs(),
+		Exec: func(ctx context.Context, args []string) error {
 			config, err := getCombinedConfig()
 			if err != nil {
 				return err
@@ -90,12 +88,12 @@ func createInputsCmd() *cobra.Command {
 	}
 }
 
-func createQuestionCmd() *cobra.Command {
-	return &cobra.Command{
-		Use: "question",
-		Short: "Gets question for day",
-		Args: cobra.NoArgs,
-		RunE: func(cmd *cobra.Command, args []string) error {
+func createQuestionCmd() *scli.Command {
+	return &scli.Command{
+		Usage:         "question",
+		ShortHelp:     "Gets question for day",
+		ArgsValidator: scli.NoArgs(),
+		Exec: func(ctx context.Context, args []string) error {
 			config, err := getCombinedConfig()
 			if err != nil {
 				return err
