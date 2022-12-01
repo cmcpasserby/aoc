@@ -24,17 +24,18 @@ func New(sessionCookie string, httpClient *http.Client) *Client {
 }
 
 func (c *Client) newRequest(path string) (*http.Request, error) {
-	rel := &url.URL{Path: path}
-	u := c.baseUrl.ResolveReference(rel)
+	u := c.baseUrl.ResolveReference(&url.URL{Path: path})
 
-	req, err := http.NewRequest("GET", u.String(), nil)
+	req, err := http.NewRequest(http.MethodGet, u.String(), nil)
 	if err != nil {
 		return nil, err
 	}
 
+	req.Header.Set("User-Agent", "github.com/cmcpasserby/aoc by chris@rightsomegoodgames.ca")
+
 	cookie := &http.Cookie{
-		Name: "session",
-		Value:  c.sessionCookie,
+		Name:  "session",
+		Value: c.sessionCookie,
 	}
 	req.AddCookie(cookie)
 
