@@ -45,12 +45,13 @@ func main() {
 	}
 }
 
-func write(year, day int, reader io.Reader) error {
+func write(year, day int, data []byte) error {
 	var outputWriter io.Writer
 
 	if gFlagOutput != "" {
 		output := strings.ReplaceAll(gFlagOutput, "{year}", fmt.Sprintf("%04d", year))
 		output = strings.ReplaceAll(output, "{day}", fmt.Sprintf("%02d", day))
+
 		f, err := os.Create(output)
 		if err != nil {
 			return err
@@ -61,7 +62,11 @@ func write(year, day int, reader io.Reader) error {
 		outputWriter = os.Stdout
 	}
 
-	if _, err := io.Copy(outputWriter, reader); err != nil {
+	if data[len(data)-1] == 0xA {
+		data = data[:len(data)-1]
+	}
+
+	if _, err := outputWriter.Write(data); err != nil {
 		return err
 	}
 

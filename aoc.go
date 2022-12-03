@@ -1,7 +1,6 @@
 package aoc
 
 import (
-	"bytes"
 	"errors"
 	"fmt"
 	"io"
@@ -42,7 +41,7 @@ func (c *Client) newRequest(path string) (*http.Request, error) {
 	return req, nil
 }
 
-func (c *Client) do(req *http.Request) (io.Reader, error) {
+func (c *Client) do(req *http.Request) ([]byte, error) {
 	resp, err := c.httpClient.Do(req)
 	if err != nil {
 		return nil, err
@@ -58,10 +57,10 @@ func (c *Client) do(req *http.Request) (io.Reader, error) {
 		return nil, err
 	}
 
-	return bytes.NewReader(b), nil
+	return b, nil
 }
 
-func (c *Client) GetInput(year, day int) (io.Reader, error) {
+func (c *Client) GetInput(year, day int) ([]byte, error) {
 	req, err := c.newRequest(fmt.Sprintf("%d/day/%d/input", year, day))
 	if err != nil {
 		return nil, err
@@ -69,7 +68,7 @@ func (c *Client) GetInput(year, day int) (io.Reader, error) {
 	return c.do(req)
 }
 
-func (c *Client) GetQuestion(year, day int) (io.Reader, error) {
+func (c *Client) GetQuestion(year, day int) ([]byte, error) {
 	req, err := c.newRequest(fmt.Sprintf("%d/day/%d", year, day))
 	if err != nil {
 		return nil, err
