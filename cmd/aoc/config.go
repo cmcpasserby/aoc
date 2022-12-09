@@ -10,7 +10,7 @@ import (
 )
 
 const (
-	configName = ".aocConfig"
+	configName = "aocConfig.toml"
 )
 
 type aocConfig struct {
@@ -32,7 +32,7 @@ func getConfig() (*aocConfig, error) {
 		return loadConfig(f)
 	}
 
-	configDir, err := os.UserHomeDir()
+	configDir, err := os.UserConfigDir()
 	if err != nil {
 		return nil, err
 	}
