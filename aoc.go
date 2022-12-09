@@ -67,11 +67,3 @@ func (c *Client) GetInput(year, day int) ([]byte, error) {
 	}
 	return c.do(req)
 }
-
-func (c *Client) GetQuestion(year, day int) ([]byte, error) {
-	req, err := c.newRequest(fmt.Sprintf("%d/day/%d", year, day))
-	if err != nil {
-		return nil, err
-	}
-	return c.do(req)
-}

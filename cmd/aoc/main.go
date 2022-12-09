@@ -32,11 +32,23 @@ func main() {
 	rootFlags.StringVar(&gFlagSessionCookie, "sessionCookie", "", "sets the session cookie, if not defined session cookie is read from .aocConfig")
 
 	cmd := &scli.Command{
-		Usage:       "aoc",
-		ShortHelp:   "Tool for downloading Advent of Code Puzzle input data",
-		LongHelp:    longUsage,
-		Subcommands: []*scli.Command{createInputsCmd(), createQuestionCmd()},
-		FlagSet:     rootFlags,
+		Usage:         "aoc",
+		ShortHelp:     "Tool for downloading Advent of Code Puzzle input data",
+		LongHelp:      longUsage,
+		FlagSet:       rootFlags,
+		ArgsValidator: scli.NoArgs(),
+		Exec: func(ctx context.Context, args []string) error {
+			config, err := getCombinedConfig()
+			if err != nil {
+				return err
+			}
+			client := aoc.New(config.SessionCookie, http.DefaultClient)
+			inputs, err := client.GetInput(config.Year, config.Day)
+			if err != nil {
+				return err
+			}
+			return write(config.Year, config.Day, inputs)
+		},
 	}
 
 	if err := cmd.ParseAndRun(context.Background(), os.Args[1:]); err != nil {
@@ -71,45 +83,4 @@ func write(year, day int, data []byte) error {
 	}
 
 	return nil
-}
-
-func createInputsCmd() *scli.Command {
-	return &scli.Command{
-		Usage:         "inputs",
-		ShortHelp:     "Gets puzzle inputs for a day",
-		ArgsValidator: scli.NoArgs(),
-		Exec: func(ctx context.Context, args []string) error {
-			config, err := getCombinedConfig()
-			if err != nil {
-				return err
-			}
-			client := aoc.New(config.SessionCookie, http.DefaultClient)
-			inputs, err := client.GetInput(config.Year, config.Day)
-			if err != nil {
-				return err
-			}
-			return write(config.Year, config.Day, inputs)
-		},
-	}
-}
-
-func createQuestionCmd() *scli.Command {
-	return &scli.Command{
-		Usage:         "question",
-		ShortHelp:     "Gets question for day",
-		ArgsValidator: scli.NoArgs(),
-		Exec: func(ctx context.Context, args []string) error {
-			config, err := getCombinedConfig()
-			if err != nil {
-				return err
-			}
-
-			client := aoc.New(config.SessionCookie, http.DefaultClient)
-			question, err := client.GetQuestion(config.Year, config.Day)
-			if err != nil {
-				return err
-			}
-			return write(config.Year, config.Day, question)
-		},
-	}
 }
