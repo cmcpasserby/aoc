@@ -60,6 +60,10 @@ func main() {
 func write(year, day int, data []byte) error {
 	var outputWriter io.Writer
 
+	if data[len(data)-1] == 0xA {
+		data = data[:len(data)-1]
+	}
+
 	if gFlagOutput != "" {
 		output := strings.ReplaceAll(gFlagOutput, "{year}", fmt.Sprintf("%04d", year))
 		output = strings.ReplaceAll(output, "{day}", fmt.Sprintf("%02d", day))
@@ -70,12 +74,9 @@ func write(year, day int, data []byte) error {
 		}
 		defer f.Close()
 		outputWriter = f
+		fmt.Printf("Writting to '%s'\n", output)
 	} else {
 		outputWriter = os.Stdout
-	}
-
-	if data[len(data)-1] == 0xA {
-		data = data[:len(data)-1]
 	}
 
 	if _, err := outputWriter.Write(data); err != nil {
