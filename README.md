@@ -3,12 +3,11 @@ aoc is a command line tool for downloading [Advent of Code](https://adventofcode
 
 ## Usage
 - `aoc -h` will print usage instructions and list all available flags
-- `aoc -year 2015 -day 1 inputs` would be a common use case and will download the puzzle input for day 1 of 2015 and use the session cookie provided by your `.aocConfig`
-
+- `aoc -year 2015 -day 1 inputs` would be a common use case and will download the puzzle input for day 1 of 2015 and use the session cookie provided by your `aocConfig.toml`
 
 ## Config file
-Config files can be local and live in the working directory, or be global for a user and live in the home directory.
-Config filenames are `.aocConfig` and are [toml](https://toml.io/) formatted text files.
+Config files can be local and live in the working directory, or be global for a user and live in the XDG config directory.
+Config filenames are `aocConfig.toml` and are [toml](https://toml.io/) formatted text files.
 
 #### config file example:
 ```toml
